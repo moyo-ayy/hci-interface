@@ -1,46 +1,56 @@
 import React, { useState } from 'react';
 
-const CourseForm = () => {
+const CourseForm = ({ onSearch, data }) => {
   const [semester, setSemester] = useState('');
-  const [instructor, setInstructor] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [courseNumber, setCourseNumber] = useState('');
+  const [showSemesterSuggestions, setShowSemesterSuggestions] = useState(false);
+  const [showCourseSuggestions, setShowCourseSuggestions] = useState(false);
 
-  const semesters = [
-    'Fall 2024',
-    'Spring 2025',
-    'Summer 2025',
-    'Fall 2025'
-  ];
+  // Extract unique semesters and course names
+  const semesters = Array.from(new Set(data.terms.map(term => term.term)));
+  const courses = Array.from(
+    new Set(
+      data.terms.flatMap(term =>
+        term.courses.map(course => course.course_name)
+      )
+    )
+  );
 
+  // Filtered suggestions
   const filteredSemesters = semesters.filter(sem =>
     sem.toLowerCase().includes(semester.toLowerCase())
+  );
+  const filteredCourses = courses.filter(course =>
+    course.toLowerCase().includes(courseNumber.toLowerCase())
   );
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({ semester, instructor });
+    onSearch({
+      term: semester,
+      search: courseNumber,
+      type: 'course',
+    });
   };
 
   return (
     <div className="search-form-container">
       <div className="search-form-card">
         <form onSubmit={handleSubmit} className="search-form">
-          {/* Course Term Section */}
+          {/* Semester Field */}
           <div>
-            <label className="form-label">
-              COURSE TERM
-            </label>
+            <label className="form-label">COURSE TERM</label>
             <div className="input-container">
               <input
                 type="text"
                 value={semester}
                 onChange={(e) => setSemester(e.target.value)}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                onFocus={() => setShowSemesterSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSemesterSuggestions(false), 200)}
                 className="form-input"
                 placeholder="Enter semester..."
               />
-              {showSuggestions && semester && filteredSemesters.length > 0 && (
+              {showSemesterSuggestions && semester && filteredSemesters.length > 0 && (
                 <div className="suggestions-container">
                   {filteredSemesters.map((sem) => (
                     <div
@@ -48,7 +58,7 @@ const CourseForm = () => {
                       className="suggestion-item"
                       onClick={() => {
                         setSemester(sem);
-                        setShowSuggestions(false);
+                        setShowSemesterSuggestions(false);
                       }}
                     >
                       {sem}
@@ -59,18 +69,36 @@ const CourseForm = () => {
             </div>
           </div>
 
-          {/* Course Instructor Section */}
+          {/* Course Number/Title Field */}
           <div>
-            <label className="form-label">
-              COURSE TITLE AND NUMBER
-            </label>
-            <input
-              type="text"
-              value={instructor}
-              onChange={(e) => setInstructor(e.target.value)}
-              className="form-input"
-              placeholder="Enter instructor name..."
-            />
+            <label className="form-label">COURSE TITLE AND NUMBER</label>
+            <div className="input-container">
+              <input
+                type="text"
+                value={courseNumber}
+                onChange={(e) => setCourseNumber(e.target.value)}
+                onFocus={() => setShowCourseSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowCourseSuggestions(false), 200)}
+                className="form-input"
+                placeholder="Enter course number or title..."
+              />
+              {showCourseSuggestions && courseNumber && filteredCourses.length > 0 && (
+                <div className="suggestions-container">
+                  {filteredCourses.map((course) => (
+                    <div
+                      key={course}
+                      className="suggestion-item"
+                      onClick={() => {
+                        setCourseNumber(course);
+                        setShowCourseSuggestions(false);
+                      }}
+                    >
+                      {course}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Search Button */}

@@ -9,6 +9,17 @@ function App() {
 
   const [currentMode, setCurrentMode] = useState(1)
 
+  const [filters, setFilters] = useState({
+    term: '',
+    campus: '',
+    college: '',
+    department: '',
+    courseNumber: '',
+    courseTitle: '',
+    search: '',
+    type: 'instructor', // Default type
+  });
+
   const evaluationData = {
     "terms": [
       {
@@ -17,6 +28,9 @@ function App() {
           {
             "course_name": "COP 4530",
             "instructor": "Sarah Jensen",
+            "campus": "Tampa",
+            "college": "Engineering",
+            "department": "Computer Science",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -60,6 +74,9 @@ function App() {
           {
             "course_name": "COP 4510",
             "instructor": "Michael Lee",
+            "campus": "Tampa",
+            "college": "Engineering",
+            "department": "IT",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -103,6 +120,9 @@ function App() {
           {
             "course_name": "COT 4210",
             "instructor": "Emily Torres",
+            "campus": "Tampa",
+            "college": "Engineering",
+            "department": "Computer Science",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -146,6 +166,9 @@ function App() {
           {
             "course_name": "CAP 3300",
             "instructor": "Jonathan Black",
+            "campus": "Tampa",
+            "college": "Engineering",
+            "department": "Cybersecurity",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -194,6 +217,9 @@ function App() {
           {
             "course_name": "COP 4600",
             "instructor": "Alex Smith",
+            "campus": "Tampa",
+            "college": "Engineering",
+            "department": "Computer Science",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -237,6 +263,9 @@ function App() {
           {
             "course_name": "CEN 4020",
             "instructor": "Melissa Johnson",
+            "campus": "Tampa",
+            "college": "Engineering",
+            "department": "Computer Science",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -280,6 +309,9 @@ function App() {
           {
             "course_name": "CDA 3101",
             "instructor": "David Brown",
+            "campus": "Tampa",
+            "college": "Engineering",
+            "department": "Computer Science",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -323,6 +355,9 @@ function App() {
           {
             "course_name": "CIS 4360",
             "instructor": "Rachel Green",
+            "campus": "Tampa",
+            "college": "Science",
+            "department": "Math",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -371,6 +406,9 @@ function App() {
           {
             "course_name": "CNT 4504",
             "instructor": "Daniel Wilson",
+            "campus": "Tampa",
+            "college": "Engineering",
+            "department": "Computer Science",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -414,6 +452,9 @@ function App() {
           {
             "course_name": "COP 3330",
             "instructor": "Laura Martinez",
+            "campus": "Saint Petersberg",
+            "college": "Engineering",
+            "department": "Computer Science",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -457,6 +498,9 @@ function App() {
           {
             "course_name": "CIS 4301",
             "instructor": "James Anderson",
+            "campus": "Saint Petersberg",
+            "college": "Engineering",
+            "department": "Computer Science",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -500,6 +544,9 @@ function App() {
           {
             "course_name": "COP 4710",
             "instructor": "Patricia Taylor",
+            "campus": "Tampa",
+            "college": "Engineering",
+            "department": "Computer Science",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -548,6 +595,9 @@ function App() {
           {
             "course_name": "CDA 4312",
             "instructor": "Mark Thomas",
+            "campus": "Tampa",
+            "college": "Engineering",
+            "department": "Computer Science",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -591,6 +641,9 @@ function App() {
           {
             "course_name": "CEN 3031",
             "instructor": "Barbara Moore",
+            "campus": "Tampa",
+            "college": "Engineering",
+            "department": "Cybersecurity",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -634,6 +687,9 @@ function App() {
           {
             "course_name": "COP 4020",
             "instructor": "Jennifer Jackson",
+            "campus": "Tampa",
+            "college": "Engineering",
+            "department": "Computer Science",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -677,6 +733,9 @@ function App() {
           {
             "course_name": "COP 4610",
             "instructor": "Christopher White",
+            "campus": "Tampa",
+            "college": "Engineering",
+            "department": "Computer Science",
             "evaluations": {
               "E1": {
                 "category": "Description of Course Objectives & Assignments",
@@ -722,26 +781,32 @@ function App() {
     ]
   }
   
-  
+  const handleSearch = (searchFilters) => {
+    setFilters(searchFilters);
+  };
 
   return (
     <>
       <div>
-        <Navbar mode={currentMode} setMode={setCurrentMode}/>
+        <Navbar mode={currentMode} setMode={setCurrentMode} />
       </div>
       <div className='main-content'>
-        {currentMode == 1 && <CourseForm/>}
-        {currentMode == 2 && <InstructorForm/>}
-        {currentMode == 3 && <AdvancedSearchForm/>}
-        <InstructorRating 
+        {currentMode === 1 && (
+          <CourseForm onSearch={handleSearch} data={evaluationData} />
+        )}
+        {currentMode === 2 && (
+          <InstructorForm onSearch={handleSearch} data={evaluationData} />
+        )}
+        {currentMode === 3 && (
+          <AdvancedSearchForm onSearch={handleSearch} data={evaluationData} />
+        )}
+        <InstructorRating
           data={evaluationData}
-          termFilter="Fall 2024"
-          searchFilter="Michael"
-          filterType="instructor"
-      />
+          filters={filters}
+        />
       </div>
     </>
-  )
+  );
 }
 
 export default App

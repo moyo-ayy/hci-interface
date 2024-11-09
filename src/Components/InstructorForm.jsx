@@ -1,46 +1,68 @@
-import React, { useState } from 'react';
+// InstructorForm.jsx
 
-const InstructorForm = () => {
+import React, { useState, useMemo } from 'react';
+
+const InstructorForm = ({ onSearch, data }) => {
   const [semester, setSemester] = useState('');
-  const [courseNumber, setCourseNumber] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [instructor, setInstructor] = useState('');
+  const [showSemesterSuggestions, setShowSemesterSuggestions] = useState(false);
+  const [showInstructorSuggestions, setShowInstructorSuggestions] = useState(false);
 
-  const semesters = [
-    'Fall 2024',
-    'Spring 2025',
-    'Summer 2025',
-    'Fall 2025'
-  ];
+  // Extract unique semesters and instructors from data
+  const semesters = useMemo(() => {
+    return Array.from(new Set(data.terms.map(term => term.term))).sort();
+  }, [data]);
 
-  const filteredSemesters = semesters.filter(sem =>
-    sem.toLowerCase().includes(semester.toLowerCase())
-  );
+  const instructors = useMemo(() => {
+    return Array.from(
+      new Set(
+        data.terms.flatMap(term =>
+          term.courses.map(course => course.instructor)
+        )
+      )
+    ).sort();
+  }, [data]);
+
+  // Filtered suggestions based on user input
+  const filteredSemesters = useMemo(() => {
+    return semesters.filter(sem =>
+      sem.toLowerCase().includes(semester.toLowerCase())
+    );
+  }, [semester, semesters]);
+
+  const filteredInstructors = useMemo(() => {
+    return instructors.filter(instr =>
+      instr.toLowerCase().includes(instructor.toLowerCase())
+    );
+  }, [instructor, instructors]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({ semester, courseNumber });
+    onSearch({
+      term: semester,
+      search: instructor,
+      type: 'instructor',
+    });
   };
 
   return (
     <div className="search-form-container">
       <div className="search-form-card">
         <form onSubmit={handleSubmit} className="search-form">
-          {/* Course Term Section */}
-          <div>
-            <label className="form-label">
-              COURSE TERM
-            </label>
+          {/* Semester Field */}
+          <div className="form-group">
+            <label className="form-label">COURSE TERM</label>
             <div className="input-container">
               <input
                 type="text"
                 value={semester}
                 onChange={(e) => setSemester(e.target.value)}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                onFocus={() => setShowSemesterSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSemesterSuggestions(false), 200)}
                 className="form-input"
                 placeholder="Enter semester..."
               />
-              {showSuggestions && semester && filteredSemesters.length > 0 && (
+              {showSemesterSuggestions && semester && filteredSemesters.length > 0 && (
                 <div className="suggestions-container">
                   {filteredSemesters.map((sem) => (
                     <div
@@ -48,7 +70,7 @@ const InstructorForm = () => {
                       className="suggestion-item"
                       onClick={() => {
                         setSemester(sem);
-                        setShowSuggestions(false);
+                        setShowSemesterSuggestions(false);
                       }}
                     >
                       {sem}
@@ -59,18 +81,36 @@ const InstructorForm = () => {
             </div>
           </div>
 
-          {/* Course Title and Number Section */}
-          <div>
-            <label className="form-label">
-              COURSE INSTRUCTOR
-            </label>
-            <input
-              type="text"
-              value={courseNumber}
-              onChange={(e) => setCourseNumber(e.target.value)}
-              className="form-input"
-              placeholder="Enter course number..."
-            />
+          {/* Instructor Field */}
+          <div className="form-group">
+            <label className="form-label">COURSE INSTRUCTOR</label>
+            <div className="input-container">
+              <input
+                type="text"
+                value={instructor}
+                onChange={(e) => setInstructor(e.target.value)}
+                onFocus={() => setShowInstructorSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowInstructorSuggestions(false), 200)}
+                className="form-input"
+                placeholder="Enter instructor name..."
+              />
+              {showInstructorSuggestions && instructor && filteredInstructors.length > 0 && (
+                <div className="suggestions-container">
+                  {filteredInstructors.map((instr) => (
+                    <div
+                      key={instr}
+                      className="suggestion-item"
+                      onClick={() => {
+                        setInstructor(instr);
+                        setShowInstructorSuggestions(false);
+                      }}
+                    >
+                      {instr}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Search Button */}

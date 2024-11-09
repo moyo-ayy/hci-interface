@@ -6,21 +6,39 @@ const CourseForm = ({ onSearch, data }) => {
   const [showSemesterSuggestions, setShowSemesterSuggestions] = useState(false);
   const [showCourseSuggestions, setShowCourseSuggestions] = useState(false);
 
-  // Extract unique semesters and course names
+  // Extract unique semesters
   const semesters = Array.from(new Set(data.terms.map(term => term.term)));
-  const courses = Array.from(
-    new Set(
-      data.terms.flatMap(term =>
-        term.courses.map(course => course.course_name)
-      )
-    )
-  );
+
+  // Get courses based on selected semester
+  const getFilteredCourses = () => {
+    if (!semester) {
+      // If no semester selected, show all courses
+      return Array.from(
+        new Set(
+          data.terms.flatMap(term =>
+            term.courses.map(course => course.course_name)
+          )
+        )
+      );
+    }
+    
+    // Find the specific term object that matches the selected semester
+    const selectedTerm = data.terms.find(term => 
+      term.term.toLowerCase() === semester.toLowerCase()
+    );
+    
+    // If term found, return its courses, otherwise return empty array
+    return selectedTerm 
+      ? Array.from(new Set(selectedTerm.courses.map(course => course.course_name)))
+      : [];
+  };
 
   // Filtered suggestions
   const filteredSemesters = semesters.filter(sem =>
     sem.toLowerCase().includes(semester.toLowerCase())
   );
-  const filteredCourses = courses.filter(course =>
+
+  const filteredCourses = getFilteredCourses().filter(course =>
     course.toLowerCase().includes(courseNumber.toLowerCase())
   );
 
@@ -31,6 +49,13 @@ const CourseForm = ({ onSearch, data }) => {
       search: courseNumber,
       type: 'course',
     });
+  };
+
+  const handleSemesterSelect = (selectedSemester) => {
+    setSemester(selectedSemester);
+    setShowSemesterSuggestions(false);
+    // Reset course number when semester changes
+    setCourseNumber('');
   };
 
   return (
@@ -56,10 +81,7 @@ const CourseForm = ({ onSearch, data }) => {
                     <div
                       key={sem}
                       className="suggestion-item"
-                      onClick={() => {
-                        setSemester(sem);
-                        setShowSemesterSuggestions(false);
-                      }}
+                      onClick={() => handleSemesterSelect(sem)}
                     >
                       {sem}
                     </div>

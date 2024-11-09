@@ -1,5 +1,3 @@
-// InstructorForm.jsx
-
 import React, { useState, useMemo } from 'react';
 
 const InstructorForm = ({ onSearch, data }) => {
@@ -8,33 +6,43 @@ const InstructorForm = ({ onSearch, data }) => {
   const [showSemesterSuggestions, setShowSemesterSuggestions] = useState(false);
   const [showInstructorSuggestions, setShowInstructorSuggestions] = useState(false);
 
-  // Extract unique semesters and instructors from data
+  // Extract unique semesters
   const semesters = useMemo(() => {
     return Array.from(new Set(data.terms.map(term => term.term))).sort();
   }, [data]);
 
-  const instructors = useMemo(() => {
-    return Array.from(
-      new Set(
-        data.terms.flatMap(term =>
-          term.courses.map(course => course.instructor)
+  // Get instructors based on selected semester
+  const getFilteredInstructors = () => {
+    if (!semester) {
+      // If no semester selected, show all instructors
+      return Array.from(
+        new Set(
+          data.terms.flatMap(term =>
+            term.courses.map(course => course.instructor)
+          )
         )
-      )
-    ).sort();
-  }, [data]);
-
-  // Filtered suggestions based on user input
-  const filteredSemesters = useMemo(() => {
-    return semesters.filter(sem =>
-      sem.toLowerCase().includes(semester.toLowerCase())
+      ).sort();
+    }
+    
+    // Find the specific term object that matches the selected semester
+    const selectedTerm = data.terms.find(term => 
+      term.term.toLowerCase() === semester.toLowerCase()
     );
-  }, [semester, semesters]);
+    
+    // If term found, return its instructors, otherwise return empty array
+    return selectedTerm 
+      ? Array.from(new Set(selectedTerm.courses.map(course => course.instructor))).sort()
+      : [];
+  };
 
-  const filteredInstructors = useMemo(() => {
-    return instructors.filter(instr =>
-      instr.toLowerCase().includes(instructor.toLowerCase())
-    );
-  }, [instructor, instructors]);
+  // Filtered suggestions
+  const filteredSemesters = semesters.filter(sem =>
+    sem.toLowerCase().includes(semester.toLowerCase())
+  );
+
+  const filteredInstructors = getFilteredInstructors().filter(instr =>
+    instr.toLowerCase().includes(instructor.toLowerCase())
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -43,6 +51,13 @@ const InstructorForm = ({ onSearch, data }) => {
       search: instructor,
       type: 'instructor',
     });
+  };
+
+  const handleSemesterSelect = (selectedSemester) => {
+    setSemester(selectedSemester);
+    setShowSemesterSuggestions(false);
+    // Reset instructor when semester changes
+    setInstructor('');
   };
 
   return (
@@ -68,10 +83,7 @@ const InstructorForm = ({ onSearch, data }) => {
                     <div
                       key={sem}
                       className="suggestion-item"
-                      onClick={() => {
-                        setSemester(sem);
-                        setShowSemesterSuggestions(false);
-                      }}
+                      onClick={() => handleSemesterSelect(sem)}
                     >
                       {sem}
                     </div>

@@ -79,7 +79,7 @@ const InstructorRating = ({ data, filters }) => {
   }, [data, filters]);
 
   if (!filteredData) {
-    return <div className="rating-card">No matching data found</div>;
+    return <div className="rating-card" style={{fontSize: "2rem"}}>No matching data found</div>;
   }
 
   const evaluationArray = Object.entries(filteredData.evaluations).map(([key, value]) => ({

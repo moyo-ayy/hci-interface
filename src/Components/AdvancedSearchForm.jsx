@@ -69,7 +69,6 @@ const AdvancedSearchForm = () => {
              )}
            </div>
          </div>
-
          {/* Campus Section */}
          <div>
            <label className="form-label">
